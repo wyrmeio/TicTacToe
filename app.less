@@ -1,0 +1,37 @@
+@cell-width: 100px;
+body{
+  text-align:center;
+}
+.board{ 
+  width: 3 * @cell-width; 
+  margin:auto; 
+}
+.cells{ 
+  height: 3 * @cell-width; 
+}
+.cell.btn{
+  width:@cell-width;
+  height:@cell-width;
+  font-size: 50px;
+  line-height: 72px;
+  float:left;
+  &:nth-child(3n+1){ 
+    clear:left; 
+  }
+}
+.hud{
+  text-align: center;
+  margin-top:20px;
+  clear:both;
+  .info{ 
+    font-size:1.4em; 
+  }
+}
+
+.players{
+
+font-size: 1.4em;
+  background-color: #fefefe;
+  margin: 5px;
+
+}

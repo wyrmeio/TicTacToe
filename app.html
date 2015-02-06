@@ -1,0 +1,71 @@
+<head>
+  <title>Meteor Tic Tac Toe</title> 
+</head>
+
+<body>
+  <h2>Tic Tac Toe <small>in Meteor</small></h2>
+
+  {{> room}}
+</body>
+
+
+
+<template name="board">
+  <div class="board">    
+    <div class="hud">
+      <div class="info alert alert-{{#if winner}}success{{else}}warning{{/if}}">
+        {{#if winner}}
+          Winner is <strong>{{winner}}</strong>!
+        {{else}}
+          <strong>{{currentPlayer}}</strong>'s turn!
+        {{/if}}
+      </div>
+    </div>
+    <div class="cells">
+      {{#each cells}}
+        <div class="cell btn {{buttonType}}">{{type}}</div>
+      {{/each}}
+    </div>
+    <div class="hud">
+      <div class="btn btn-danger btn-lg restart-game">Restart Game</div>
+    </div>
+    <hr>
+    <p><a href="mailto:idrisjafer@gmail.com">Idris Jafer</a> | <a target="_blank" href="https://github.com/wyrmeio/TicTacToe">Github</a></p>
+  </div>
+</template>
+
+
+<template name="room">
+<div class="row">
+    <div class="col-md-6 col-md-offset-3">
+
+    {{#if name}}
+    {{> playerName}}
+    {{else}}
+    {{> playerInput}}
+    {{/if}}
+</div></div>
+</template>
+
+<template name="playerInput">
+<form class="proceed">
+    <div class="form-inline">
+        <input type="text" class="form-control input-lg" name="text" placeholder="Enter your name">
+        <button type="submit" class="btn btn-danger">Proceed</button>
+    </div>
+</form>
+</template>
+
+<template name="playerName">
+    <h2>Player Name: {{myName}}</h2>
+
+    <h2>Online Players</h2>
+    {{#each players}}
+
+        <div class="row players">
+            <div class="col-md-6"> {{name}}</div>
+            <div class="col-md-4"> <button  class="btn btn-sm btn-block btn-warning invite">Invite</button> </div>
+        </div>
+
+    {{/each}}
+</template>
