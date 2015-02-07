@@ -6,10 +6,12 @@
  */
 var currentPlayer, gameSummary, getWinner;
 
+
 Cells = new Meteor.Collection('cells');
 Players = new Meteor.Collection('players');
+Rooms = new Meteor.Collection('rooms');
 
-gameSummary = function() {
+gameSummary = function(roomId) {
     var cell, combo, key, pickedCells, pickedWinningCombo, val, winners, winningCombos, _i, _j, _len, _len1, _name, _ref;
     winningCombos = [
         ['0', '1', '2'],
@@ -22,7 +24,7 @@ gameSummary = function() {
         ['2', '4', '6']
     ];
     pickedCells = {};
-    _ref = Cells.find().fetch();
+    _ref = Cells.find({roomId:roomId}).fetch();
     for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         cell = _ref[_i];
         if (cell.type != null) {
@@ -55,16 +57,25 @@ gameSummary = function() {
  */
 
 if (Meteor.isClient) {
+
+    turn=0;
     currentPlayer = function() {
-        if ((Cells.find({type: {$exists: true  } }, { sort: {_id: 1} }).count() % 2) === 0) {
+        if ((Cells.find({$and:[{type: {$exists: true  } },{roomId:Session.get('roomId')}]}, { sort: {_id: 1} }).count() % 2) === 0) {
             return 'X';
         } else {
             return 'O';
         }
+
+        if(turn % 2 === 0)
+            Session.set('cellStatus','cellOn');
+        else
+            Session.set('cellStatus','cellOff');
+
     };
+
     getWinner = function() {
         var key, val, _ref;
-        _ref = gameSummary();
+        _ref = gameSummary(Session.get('roomId'));
         for (key in _ref) {
             val = _ref[key];
             if (val === true) {
@@ -74,9 +85,6 @@ if (Meteor.isClient) {
         return false;
     };
 
-
-
-
     Template.board.helpers({
         currentPlayer: function() {
             return currentPlayer();
@@ -84,8 +92,12 @@ if (Meteor.isClient) {
         winner: function() {
             return getWinner();
         },
+        cellState: function(){
+
+          return Session.get('cellStatus');
+        },
         cells: function() {
-            return Cells.find({}, { sort: { _id: 1 } });
+            return Cells.find({roomId:Session.get('roomId')}, { sort: { _id: 1 } });
         },
         buttonType: function() {
             if (this.winning) {
@@ -99,15 +111,20 @@ if (Meteor.isClient) {
     });
     Template.board.events({
         'click .restart-game': function() {
-            return Meteor.call('restartGame');
+            return Meteor.call('restartGame',Session.get('roomId'));
         },
         'click .cell': function() {
+          //  Session.set('cellStatus','cellOff');
+            turn=turn+1;
+
             var _ref;
-            if (!((((_ref = Cells.findOne({_id: this._id })) != null ? _ref.type : void 0) != null) || getWinner()))
+            if (!((((_ref = Cells.findOne({$and:[{_id: this._id },{roomId:Session.get('roomId')}]})) != null ? _ref.type : void 0) != null) || getWinner()))
             {
-                Cells.update({_id: this._id}, {$set: {type: currentPlayer()}});
-                if (gameSummary().winningCells != null) {
-                    return Meteor.call('updateWinningCells');
+                var docid=Cells.findOne({$and:[{_id: this._id },{roomId:Session.get('roomId')}]});
+                Cells.update({_id:docid._id}, {$set: {type: currentPlayer()}});
+                if (gameSummary(Session.get('roomId')).winningCells != null) {
+                   return Meteor.call('updateWinningCells',Session.get('roomId'));
+
                 }
             }
         }
@@ -121,27 +138,29 @@ if (Meteor.isClient) {
 
 if (Meteor.isServer) {
     Meteor.methods({
-        'restartGame': function()
+        'restartGame': function(roomId)
         {
-            return Cells.update({}, {$unset: {  type: true, winning: true }}, { multi: true });
+            return Cells.update({roomId:roomId}, {$unset: {  type: true, winning: true }}, { multi: true });
         },
-        'updateWinningCells': function() {
-            if (gameSummary().winningCells != null)
+        'updateWinningCells': function(roomId) {
+            if (gameSummary(roomId).winningCells != null)
             {
-                return Cells.update({ _id: {$in: gameSummary().winningCells }}, { $set: { winning: true } }, { multi: true});
+                return Cells.update({$and:[{ _id: {$in: gameSummary(roomId).winningCells }},{roomId:roomId}]}, { $set: { winning: true } }, { multi: true});
             }
         }
     });
-    Meteor.startup(function() {
-        var i;
 
-;        if (Cells.find().count() === 0)
+    Meteor.startup(function() {
+        /*var i;
+       if (Cells.find().count() === 0)
         {
             for (i  = 0; i <= 8; i = ++i) {
                 Cells.insert({ _id: "" + i});
             }
           //  return _results;
-        }
+        }*/
+
+
     });
 }
 
