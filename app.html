@@ -3,6 +3,7 @@
 </head>
 
 <body>
+<div class="appStyle">
   <h2>Tic Tac Toe <small>in Meteor</small></h2>
 
   {{#if game}}
@@ -12,16 +13,18 @@
   {{/if}}
 <br>
 {{> footer}}
+</div>
 </body>
 
 <template name="board">
-  <div class="board">    
+  <div class="board">
     <div class="hud">
-      <div class="info alert alert-{{#if winner}}success{{else}}warning{{/if}}">
-        {{#if winner}}
-          Winner is <strong>{{winner}}</strong>!
+      <div class="info alert alert-{{getBtnState}}">
+
+        {{#if getPlayerState}}
+            <strong>{{winner}}</strong>
         {{else}}
-          <strong>{{currentPlayer}}</strong>'s turn!
+            <strong>{{message}}</strong>
         {{/if}}
       </div>
     </div>
@@ -43,7 +46,6 @@
 <template name="room">
 <div class="row">
     <div class="col-md-6 col-md-offset-3 col-xs-12">
-
     {{#if name}}
     {{> playerName}}
     {{else}}

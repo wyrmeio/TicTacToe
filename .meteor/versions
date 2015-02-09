@@ -35,6 +35,7 @@ mongo@1.0.11
 mrt:bootstrap-3@0.3.8
 observe-sequence@1.0.4
 ordered-dict@1.0.2
+rahul:animate-everything@1.0.1
 random@1.0.2
 reactive-dict@1.0.5
 reactive-var@1.0.4
@@ -44,6 +45,7 @@ routepolicy@1.0.4
 session@1.0.5
 spacebars@1.0.5
 spacebars-compiler@1.0.4
+stylus@1.0.6
 templating@1.0.11
 tracker@1.0.5
 ui@1.0.5

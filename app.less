@@ -1,11 +1,22 @@
 @cell-width: 100px;
 body{
   text-align:center;
+ /* overflow-x: hidden;*/
+
 }
-.board{ 
-  width: 3 * @cell-width; 
-  margin:auto; 
+
+.board{
+  width: 3 * @cell-width;
+   margin: auto;
 }
+
+/*@media (min-width: 768px) {
+  .board{
+    margin: 50px;
+  }
+}*/
+
+
 .cells{ 
   height: 3 * @cell-width; 
 }
