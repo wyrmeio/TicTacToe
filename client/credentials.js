@@ -2,9 +2,7 @@
  * Created by idris on 6/2/15.
  */
 
-/*
 
- */
 if (Meteor.isClient) {
     Template.playerName.helpers({
         players: function () {
@@ -44,35 +42,37 @@ if (Meteor.isClient) {
         'submit .proceed': function (event) {
             event.preventDefault();
             var text = event.target.text.value;
-            Players.insert({name: text, inGame: false}, function (error, id) {
-                Session.set('id', id);
 
-                /*Tracker.autorun(function (){
-                    var doc=Rooms.find({$or:[{player1:Session.get('id')},{player2:Session.get('id')}]});
-                    if(doc.count()===1) {
-                        Session.set('turn', "O");
-                        //  Session.set('cellStatus','cellOff');
-                        Session.set('game', true);
-                        Session.set('roomId', doc._id);
-                        console.log(Session.get('roomId'));
-                    }
-                });*/
+            if(Players.find({name:text}).count()===0) {
+                Players.insert({name: text, inGame: false}, function (error, id) {
+                    Session.set('id', id);
 
-                Rooms.find({$or:[{player1:Session.get('id')},{player2:Session.get('id')}]}).observeChanges({
-                    added: function (newDoc, oldDoc) {
-                        //{$or:[{player1:Session.get('id')},{player2:Session.get('id')}]}
-                        if(Rooms.find({$or:[{player1:Session.get('id')},{player2:Session.get('id')}]}).count()===1) {
-                            Session.set('turn', "O");
-                            //  Session.set('cellStatus','cellOff');
-                            Session.set('game', true);
-                            Session.set('roomId', newDoc);
-                            console.log(Session.get('roomId'));
+                    Rooms.find({$or: [{player1: Session.get('id')}, {player2: Session.get('id')}]}).observeChanges({
+                        added: function (newDoc, oldDoc) {
+
+                            if (Rooms.find({$or: [{player1: Session.get('id')}, {player2: Session.get('id')}]}).count() === 1) {
+                                Session.set('turn', "O");
+                                Session.set('game', true);
+                                Session.set('roomId', newDoc);
+                                console.log(Session.get('roomId'));
+                            }
+                        },
+                        removed:function(id){
+
+                            if(id===Session.get('roomId')){
+                                alert('Sorry. Your opponent left !');
+                                location.reload();
+                            }
+
                         }
-                    }
-                });
-            });
-            Session.set('name', text);
 
+                    });
+                });
+                Session.set('name', text);
+            }
+            else{
+                alert("Name already taken! Try another one..");
+            }
         }
     });
 
@@ -90,7 +90,6 @@ if (Meteor.isClient) {
 
         game: function () {
             return (Session.get('game') != undefined);
-
         }
     });
 
