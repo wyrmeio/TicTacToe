@@ -31,7 +31,7 @@ gameSummary = function (roomId) {
             if (pickedCells[_name = cell.type] == null) {
                 pickedCells[_name] = [];
             }
-            pickedCells[cell.type].push(cell._id);
+            pickedCells[cell.type].push(cell.cellNo);
         }
     }
     winners = {};
@@ -77,7 +77,6 @@ if (Meteor.isClient) {
             val = _ref[key];
             if (val === true) {
                 return key;
-
             }
         }
         return false;
@@ -102,7 +101,7 @@ if (Meteor.isClient) {
             return (turn.turn === Session.get('turn')) ? "Your turn. Play "+Session.get('turn') : "Please wait!";
         },
         cells: function () {
-            return Cells.find({roomId: Session.get('roomId')}, {sort: {_id: 1}});
+            return Cells.find({roomId: Session.get('roomId')}, {sort: {cellNo: 1}});
         },
         buttonType: function () {
             if (this.winning) {
@@ -126,12 +125,11 @@ if (Meteor.isClient) {
             if (turn.turn === Session.get('turn')) {
 
                 var _ref;
-                if (!((((_ref = Cells.findOne({$and: [{_id: this._id}, {roomId: Session.get('roomId')}]})) != null ? _ref.type : void 0) != null) || getWinner())) {
-                    var docid = Cells.findOne({$and: [{_id: this._id}, {roomId: Session.get('roomId')}]});
+                if (!((((_ref = Cells.findOne({$and: [{cellNo: this.cellNo}, {roomId: Session.get('roomId')}]})) != null ? _ref.type : void 0) != null) || getWinner())) {
+                    var docid = Cells.findOne({$and: [{cellNo: this.cellNo}, {roomId: Session.get('roomId')}]});
                     Cells.update({_id: docid._id}, {$set: {type: currentPlayer()}});
                     if (gameSummary(Session.get('roomId')).winningCells != null) {
                         return Meteor.call('updateWinningCells', Session.get('roomId'));
-
                     }
                 }
                 var next=(turn.turn==="X") ? "O" : "X";
@@ -157,7 +155,7 @@ if (Meteor.isServer) {
         },
         'updateWinningCells': function (roomId) {
             if (gameSummary(roomId).winningCells != null) {
-                return Cells.update({$and: [{_id: {$in: gameSummary(roomId).winningCells}}, {roomId: roomId}]}, {$set: {winning: true}}, {multi: true});
+                return Cells.update({$and: [{cellNo: {$in: gameSummary(roomId).winningCells}}, {roomId: roomId}]}, {$set: {winning: true}}, {multi: true});
             }
         }
     });

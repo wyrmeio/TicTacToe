@@ -29,7 +29,7 @@ if (Meteor.isClient) {
                 var i;
                 if (Cells.find({roomId: id}).count() === 0) {
                     for (i = 0; i <= 8; i = ++i) {
-                        Cells.insert({_id: "" + i, roomId: id});
+                        Cells.insert({cellNo: "" + i, roomId: id});
                     }
                 }
             });
@@ -47,19 +47,32 @@ if (Meteor.isClient) {
             Players.insert({name: text, inGame: false}, function (error, id) {
                 Session.set('id', id);
 
-                Rooms.find().observe({
-                    added: function (newDoc, oldDoc) {
-
+                /*Tracker.autorun(function (){
+                    var doc=Rooms.find({$or:[{player1:Session.get('id')},{player2:Session.get('id')}]});
+                    if(doc.count()===1) {
                         Session.set('turn', "O");
                         //  Session.set('cellStatus','cellOff');
                         Session.set('game', true);
-                        Session.set('roomId', newDoc._id);
+                        Session.set('roomId', doc._id);
                         console.log(Session.get('roomId'));
+                    }
+                });*/
+
+                Rooms.find({$or:[{player1:Session.get('id')},{player2:Session.get('id')}]}).observeChanges({
+                    added: function (newDoc, oldDoc) {
+                        //{$or:[{player1:Session.get('id')},{player2:Session.get('id')}]}
+                        if(Rooms.find({$or:[{player1:Session.get('id')},{player2:Session.get('id')}]}).count()===1) {
+                            Session.set('turn', "O");
+                            //  Session.set('cellStatus','cellOff');
+                            Session.set('game', true);
+                            Session.set('roomId', newDoc);
+                            console.log(Session.get('roomId'));
+                        }
                     }
                 });
             });
             Session.set('name', text);
-            //console.log(Session.get('id'));
+
         }
     });
 
